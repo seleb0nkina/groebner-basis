@@ -102,7 +102,7 @@ public:
         return out;
     }
 
-private:
+protected:
     T coefficient_ = T(0);
     PowersType powers_;
 };

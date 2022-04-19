@@ -1,4 +1,4 @@
-#include "monomial.h"
+#include "deglex.h"
 #include <boost/rational.hpp>
 
 int main() {
@@ -20,5 +20,8 @@ int main() {
     Monomial<boost::rational<int>> d(4, {});
     Monomial<boost::rational<int>> e(6,{});
     std::cout<<d/e<<std::endl;
+    std::vector<DegLex<boost::rational<int>>> lol = {a,b,d,e};
+    std::sort(lol.begin(), lol.end());
+    for(const auto & i: lol) std::cout<<i<< ' ';
     return 0;
 }
