@@ -16,9 +16,9 @@ public:
 
     Monomial() = default;
 
-    Monomial(const T& coefficient, std::initializer_list<std::pair<IndexType, DegreeType>> l) {
+    Monomial(const T &coefficient, std::initializer_list<std::pair<IndexType, DegreeType>> l) {
         coefficient_ = coefficient;
-        for(const auto &j : l) {
+        for (const auto &j: l) {
             powers_[j.first] = j.second;
         }
     }
@@ -32,9 +32,9 @@ public:
     }
 
     bool isDivisibleBy(const Monomial &other) const {
-        for(const auto &j : other.powers_) {
+        for (const auto &j: other.powers_) {
             auto power = powers_.find(j.first);
-            if(power == powers_.end() || power->second < j.second) {
+            if (power == powers_.end() || power->second < j.second) {
                 return false;
             }
         }
@@ -42,7 +42,7 @@ public:
     }
 
     Monomial &operator/=(const Monomial &other) {
-        if(!isDivisibleBy(other)) {
+        if (!isDivisibleBy(other)) {
             //
         }
         coefficient_ /= other.coefficient_;
@@ -63,6 +63,40 @@ public:
         Monomial temp = *this;
         temp *= other;
         return temp;
+    }
+
+    Monomial operator+(const Monomial &other) const {
+        if (this->powers_ != other.powers_) {
+            throw std::runtime_error("skladyvaem nepravilnye monomyy");
+        }
+        Monomial *temp = *this;
+        temp->coefficient_ += other.coefficient_;
+        return temp;
+    }
+
+    Monomial operator-(const Monomial &other) const {
+        if (this->powers_ != other.powers_) {
+            throw std::runtime_error("vichytaem nepravilnye monomyy");
+        }
+        Monomial *temp = *this;
+        temp->coefficient_ -= other.coefficient_;
+        return temp;
+    }
+
+    Monomial& operator+=(const Monomial &other) {
+        if (this->powers_ != other.powers_) {
+            throw std::runtime_error("skladyvaem nepravilnye monomyy");
+        }
+        this->coefficient_ += other.coefficient_;
+        return *this;
+    }
+
+    Monomial& operator-=(const Monomial &other) {
+        if(this->powers_!=other.powers_ ) {
+            throw std::runtime_error("vichytaem nepravilno");
+        }
+        this->coefficient_ -= other.coefficient_;
+        return *this;
     }
 
     Monomial operator/(const Monomial &other) const {
@@ -86,7 +120,7 @@ public:
     }
 
     bool isStateCorrect() const {
-        for (const auto& p : powers_) {
+        for (const auto &p: powers_) {
             if (p.second <= 0) {
                 return false;
             }

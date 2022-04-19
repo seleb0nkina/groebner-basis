@@ -1,4 +1,5 @@
 #include "deglex.h"
+#include "polynomial.h"
 #include <boost/rational.hpp>
 
 int main() {
