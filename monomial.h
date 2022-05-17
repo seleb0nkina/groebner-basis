@@ -119,6 +119,14 @@ public:
         return powers_;
     }
 
+    DegreeType powerSum() const {
+        DegreeType sum = 0;
+        for (auto& j : powers_) {
+            sum += j.second;
+        }
+        return sum;
+    }
+
     bool isStateCorrect() const {
         for (const auto &p: powers_) {
             if (p.second <= 0) {

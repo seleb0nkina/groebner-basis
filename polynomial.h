@@ -1,9 +1,10 @@
 #ifndef POLYNOMIAL_H
 #define POLYNOMIAL_H
 
-#include <vector>
-#include "deglex.h"
 #include <algorithm>
+#include <vector>
+
+#include "deglex.h"
 
 template<typename T>
 class Polynomial {
@@ -42,7 +43,7 @@ public:
     }
 
 private:
-    std::vector<DegLex<T>> poly_;
+    std::vector<Monomial<T>> poly_;
 };
 
 template<typename T>
@@ -57,52 +58,24 @@ Polynomial<T>::Polynomial(Polynomial &&other) {
 
 template<typename T>
 Polynomial<T> Polynomial<T>::operator+(const Polynomial &other) const {
-    std::vector<DegLex<T>> monomials;
-    std::merge(poly_.begin(), poly_.end(), other.begin(), other.end(), std::back_inserter(monomials.begin()));
-    std::vector<DegLex<T>> tmp;
-    for (const auto &i: monomials) {
-        if (tmp.empty()) {
-            tmp.push_back(i);
-        } else {
-            if (tmp.back() == i) {
-                tmp.back() += i;
-            } else {
-                tmp.push_back(i);
-            }
-        }
-    }
+    Polynomial<T> tmp = *this;
+    tmp += other;
     return tmp;
 }
 
 template<typename T>
 Polynomial<T> Polynomial<T>::operator-(const Polynomial &other) const {
-    Polynomial minus_other = other;
-    for (auto &monomial: minus_other.poly_) {
-        monomial *= -1;
-    }
-    std::vector<DegLex<T>> monomials;
-    std::merge(poly_.begin(), poly_.end(), minus_other.beginother(), minus_other.end(),
-               std::back_inserter(monomials.begin()));
-    std::vector<DegLex<T>> tmp;
-    for (const auto &i: monomials) {
-        if (tmp.empty()) {
-            tmp.push_back(i);
-        } else {
-            if (tmp.back() == i) {
-                tmp.back() += i;
-            } else {
-                tmp.push_back(i);
-            }
-        }
-    }
+    Polynomial<T> tmp = *this;
+    tmp -= other;
     return tmp;
 }
 
 template<typename T>
 Polynomial<T> &Polynomial<T>::operator+=(const Polynomial &other) {
-    std::vector<DegLex<T>> monomials;
-    std::merge(poly_.begin(), poly_.end(), other.begin(), other.end(), std::back_inserter(monomials.begin()));
-    std::vector<DegLex<T>> tmp;
+    std::vector<Monomial<T>> monomials;
+    std::merge(poly_.begin(), poly_.end(), other.begin(), other.end(), std::back_inserter(monomials.begin()),
+               DegLex<Monomial<T>>());
+    std::vector<Monomial<T>> tmp;
     for (const auto &i: monomials) {
         if (tmp.empty()) {
             tmp.push_back(i);
@@ -114,7 +87,7 @@ Polynomial<T> &Polynomial<T>::operator+=(const Polynomial &other) {
             }
         }
     }
-    this->poly = tmp;
+    poly_ = tmp;
     return *this;
 }
 
@@ -124,10 +97,10 @@ Polynomial<T> &Polynomial<T>::operator-=(const Polynomial &other) {
     for (auto &monomial: minus_other.poly_) {
         monomial *= -1;
     }
-    std::vector<DegLex<T>> monomials;
+    std::vector<Monomial<T>> monomials;
     std::merge(poly_.begin(), poly_.end(), minus_other.beginother(), minus_other.end(),
-               std::back_inserter(monomials.begin()));
-    std::vector<DegLex<T>> tmp;
+               std::back_inserter(monomials.begin()), DegLex<Monomial<T>>());
+    std::vector<Monomial<T>> tmp;
     for (const auto &i: monomials) {
         if (tmp.empty()) {
             tmp.push_back(i);
@@ -139,58 +112,37 @@ Polynomial<T> &Polynomial<T>::operator-=(const Polynomial &other) {
             }
         }
     }
-    this->poly = tmp;
+    poly_ = tmp;
     return *this;
 }
 
 template<typename T>
 bool Polynomial<T>::operator==(const Polynomial &other) const {
-    if (poly_.size() != other.poly_.size()) return false;
-    for (size_t i = 0; i < poly_.size(); ++i) {
-        if (poly_[i] != other.poly_[i]) return false;
-    }
-    return true;
+    return poly_ == other.poly_;
 }
 
 template<typename T>
 bool Polynomial<T>::operator!=(const Polynomial &other) const {
-    return !(*this == other);
+    return poly_ != other.poly_;
 }
 
 template<typename T>
 Polynomial<T> Polynomial<T>::operator*(const Polynomial &other) const {
-    std::vector<DegLex<T>> monomials;
-    for (const auto &i: this->poly_) {
-        for (const auto &j: other.poly_) {
-            monomials.push_back(i * j);
-        }
-    }
-    sort(monomials.begin(), monomials.end());
-    std::vector<DegLex<T>> tmp;
-    for (const auto &i: monomials) {
-        if (tmp.empty()) {
-            tmp.push_back(i);
-        } else {
-            if (tmp.back() == i) {
-                tmp.back() += i;
-            } else {
-                tmp.push_back(i);
-            }
-        }
-    }
+    Polynomial<T> tmp = *this;
+    tmp *= other;
     return tmp;
 }
 
 template<typename T>
 Polynomial<T> &Polynomial<T>::operator*=(const Polynomial &other) const {
-    std::vector<DegLex<T>> monomials;
+    std::vector<Monomial<T>> monomials;
     for (const auto &i: this->poly_) {
         for (const auto &j: other.poly_) {
             monomials.push_back(i * j);
         }
     }
-    sort(monomials.begin(), monomials.end());
-    std::vector<DegLex<T>> tmp;
+    sort(monomials.begin(), monomials.end(), DegLex<Monomial<T>>());
+    std::vector<Monomial<T>> tmp;
     for (const auto &i: monomials) {
         if (tmp.empty()) {
             tmp.push_back(i);
