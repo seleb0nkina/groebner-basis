@@ -1,4 +1,6 @@
 #include "deglex.h"
+#include "lex.h"
+#include "revlex.h"
 #include "polynomial.h"
 #include <boost/rational.hpp>
 
@@ -23,6 +25,10 @@ int main() {
     std::cout << d / e << std::endl;
     std::vector<Monomial<boost::rational<int>>> lol = {a, b, d, e};
     std::sort(lol.begin(), lol.end(), DegLex<Monomial<boost::rational<int>>>());
+    for (const auto &i: lol) std::cout << i << ' ';
+    std::sort(lol.begin(), lol.end(), Lex<Monomial<boost::rational<int>>>());
+    for (const auto &i: lol) std::cout << i << ' ';
+   // std::sort(lol.begin(), lol.end(), RevLex<Monomial<boost::rational<int>>>());
     for (const auto &i: lol) std::cout << i << ' ';
     return 0;
 }

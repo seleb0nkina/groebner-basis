@@ -8,7 +8,7 @@
 template<typename T>
 class DegLex {
 public:
-    bool operator()(const T& a, const T& b) {
+    bool operator()(const T& a, const T& b) const {
         size_t our = a.powerSum();
         size_t oth = b.powerSum();
         if (our == oth) {
