@@ -2,6 +2,7 @@
 #include "lex.h"
 #include "revlex.h"
 #include "polynomial.h"
+#include "polynomialset.h"
 #include <boost/rational.hpp>
 
 int main() {
@@ -24,11 +25,28 @@ int main() {
     Monomial<boost::rational<int>> e(6, {});
     std::cout << d / e << std::endl;
     std::vector<Monomial<boost::rational<int>>> lol = {a, b, d, e};
-    std::sort(lol.begin(), lol.end(), DegLex<Monomial<boost::rational<int>>>());
+    std::sort(lol.begin(), lol.end(), DegLex<boost::rational<int>>());
     for (const auto &i: lol) std::cout << i << ' ';
-    std::sort(lol.begin(), lol.end(), Lex<Monomial<boost::rational<int>>>());
+    std::sort(lol.begin(), lol.end(), Lex<boost::rational<int>>());
     for (const auto &i: lol) std::cout << i << ' ';
    // std::sort(lol.begin(), lol.end(), RevLex<Monomial<boost::rational<int>>>());
     for (const auto &i: lol) std::cout << i << ' ';
+    Polynomial<boost::rational<int>, DegLex<boost::rational<int>>> polykek;
+    polykek.addMonomial(m);
+    //std::cout<<std::endl;
+    //std::cout<<polykek<<std::endl;
+    PolynomialSet<boost::rational<int>, DegLex<boost::rational<int>>> tset;
+    std::cout<<"SET TEST"<<std::endl;
+    tset.insert(polykek);
+    polykek.addMonomial(d);
+    tset.insert(polykek);
+    for (auto w : tset) {
+        std::cout << w << std::endl;
+    }
+    std::cout<<std::endl;
+    tset.insert(std::vector<Monomial<boost::rational<int>>>{d});
+    for (auto w : tset) {
+        std::cout << w << std::endl;
+    }
     return 0;
 }

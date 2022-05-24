@@ -31,6 +31,10 @@ public:
         return *this;
     }
 
+    bool operator==(const Monomial &other) const {
+        return coefficient_ == other.coefficient_ && powers_ == other.powers_;
+    }
+
     bool isDivisibleBy(const Monomial &other) const {
         for (const auto &j: other.powers_) {
             auto power = powers_.find(j.first);
@@ -115,6 +119,10 @@ public:
         return coefficient_;
     }
 
+    void addCoefficient(const T& other) {
+        coefficient_ += other;
+    }
+
     PowersType getPowers() const {
         return powers_;
     }
@@ -134,6 +142,17 @@ public:
             }
         }
         return true;
+    }
+
+    Monomial LCM(const Monomial &other) {
+        Monomial res;
+        for (auto i: powers_) {
+            res.powers_[i.first] = std::max(res.powers_[i.first], i.second);
+        }
+        for (auto i : other) {
+            res.powers_[i.first] = std::max(res.powers_[i.first], i.second);
+        }
+        return res;
     }
 
     friend std::ostream &operator<<(std::ostream &out, const Monomial &m) {

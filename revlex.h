@@ -7,12 +7,12 @@
 template<typename T>
 class RevLex {
 public:
-    bool operator()(const T &a, const T &b) const {
+    bool operator()(const Monomial<T> &a, const Monomial<T> &b) const {
         auto our = a.getPowers();
         auto oth = b.getPowers();
         std::reverse(our.begin(), our.end());
         std::reverse(oth.begin(), oth.end());
-        return our < oth;
+        return (our < oth || a.getCoefficient() < b.getCoefficient());
     }
 };
 

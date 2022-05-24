@@ -6,10 +6,10 @@
 template<typename T>
 class Lex {
 public:
-    bool operator()(const T &a, const T &b) const {
+    bool operator()(const Monomial<T> &a, const Monomial<T> &b) const {
         auto our = a.getPowers();
         auto oth = b.getPowers();
-        return our < oth;
+        return (our < oth || our == oth && a.getCoefficient() < b.getCoefficient());
     }
 };
 
