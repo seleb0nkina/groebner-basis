@@ -31,9 +31,17 @@ public:
 
     Polynomial operator*(const Polynomial &other) const;
 
-    Polynomial &operator*=(const Polynomial &other) const;
+    Polynomial &operator*=(const Monomial<T> &oth);
+
+    Polynomial operator*(const Monomial<T> &oth);
+
+    Polynomial &operator*=(const Polynomial &other);
 
     bool operator<(const Polynomial &other) const;
+
+    size_t getSize() const {
+        return poly_.size();
+    }
 
     friend std::ostream &operator<<(std::ostream &out, const Polynomial &other) {
         for (auto it = other.poly_.begin(); it != other.poly_.end(); ++it) {
@@ -55,20 +63,21 @@ public:
     }
 
     void addMonomial(const Monomial<T> &other) {
-        for (size_t i = 0 ; i < poly_.size(); ++i) {
-            if(poly_[i].getPowers() == other.getPowers()) {
+        for (size_t i = 0; i < poly_.size(); ++i) {
+            if (poly_[i].getPowers() == other.getPowers()) {
                 poly_[i].addCoefficient(other.getCoefficient());
                 return;
             }
         }
         for (size_t i = 0; i < poly_.size(); ++i) {
-            if(Y()(other, poly_[i])) {
+            if (Y()(other, poly_[i])) {
                 poly_.insert(poly_.begin() + i, other);
                 return;
             }
         }
         poly_.push_back(other);
     }
+
 private:
     std::vector<Monomial<T>> poly_;
 };
@@ -86,7 +95,7 @@ Polynomial<T, Y>::Polynomial(Polynomial &&other) {
 template<typename T, typename Y>
 Polynomial<T, Y>::Polynomial(const std::vector<Monomial<T>> &oth) {
     poly_ = {};
-    for (auto i : oth) {
+    for (auto i: oth) {
         addMonomial(i);
     }
 }
@@ -169,7 +178,7 @@ Polynomial<T, Y> Polynomial<T, Y>::operator*(const Polynomial &other) const {
 }
 
 template<typename T, typename Y>
-Polynomial<T, Y> &Polynomial<T, Y>::operator*=(const Polynomial &other) const {
+Polynomial<T, Y> &Polynomial<T, Y>::operator*=(const Polynomial &other) {
     std::vector<Monomial<T>> monomials;
     for (const auto &i: this->poly_) {
         for (const auto &j: other.poly_) {
@@ -194,14 +203,28 @@ Polynomial<T, Y> &Polynomial<T, Y>::operator*=(const Polynomial &other) const {
 }
 
 template<typename T, typename Y>
+Polynomial<T, Y> &Polynomial<T, Y>::operator*=(const Monomial<T> &oth) {
+    for (auto &i: poly_) {
+        i *= oth;
+    }
+    return *this;
+}
+
+template<typename T, typename Y>
+Polynomial<T, Y> Polynomial<T, Y>::operator*(const Monomial<T> &oth) {
+    auto res = *this;
+    res *= oth;
+    return *this;
+}
+
+template<typename T, typename Y>
 bool Polynomial<T, Y>::operator<(const Polynomial &other) const {
     size_t minlen = std::min(other.poly_.size(), poly_.size());
-    for (size_t i = 0; i < minlen; ++i)
-    {
+    for (size_t i = 0; i < minlen; ++i) {
         if (other.poly_[other.poly_.size() - i - 1] == poly_[poly_.size() - i - 1]) {
             continue;
         }
-        if(Y()(other.poly_[other.poly_.size() - i - 1], poly_[poly_.size() - i - 1])) {
+        if (Y()(other.poly_[other.poly_.size() - i - 1], poly_[poly_.size() - i - 1])) {
             return 0;
         }
         return 1;

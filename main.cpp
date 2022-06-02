@@ -1,3 +1,4 @@
+#include "algos.h"
 #include "deglex.h"
 #include "lex.h"
 #include "revlex.h"
