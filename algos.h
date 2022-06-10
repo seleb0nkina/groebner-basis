@@ -29,6 +29,17 @@ Polynomial<T, Y> polyS(const Polynomial<T, Y>& f, const Polynomial<T, Y>& g) {
 }
 
 template<typename T, typename Y>
+Polynomial<T, Y> normalPoly(const Polynomial<T, Y> &f) {
+    auto copy_f = f;
+    auto to_divide = copy_f.back().coefficient;
+    for (auto &i : copy_f) {
+        i.coefficient /= to_divide;
+    }
+    return copy_f;
+
+}
+
+template<typename T, typename Y>
 Polynomial<T, Y> getReminder(const PolynomialSet<T, Y>& F, const Polynomial<T, Y>& f) {
     Polynomial<T, Y> r;
     Polynomial<T, Y> p = f;
@@ -81,7 +92,6 @@ PolynomialSet<T, Y> buchberger(PolynomialSet<T, Y> &F) {
                 }
                 G.insert(S);
             }
-            //TODO
         }
         B.erase(now);
     }
@@ -107,13 +117,29 @@ bool belongToIdeal(const PolynomialSet<T, Y> &I, const Polynomial<T, Y> & p) {
     return false;
 }
 
-/*
+
 template<typename T, typename Y>
 PolynomialSet<T, Y> reduceBasis(const PolynomialSet<T, Y> &F) {
     auto copyF = F;
-
-    //TODO
+    PolynomialSet<T, Y> normalizedF;
+    for (const auto &i : F) {
+        normalizedF.insert(normalPoly(i));
+    }
+    auto normCopy = normalizedF;
+    for (const auto &i : normCopy) {
+        normalizedF.erase(i);
+        if(belongToIdeal(normalizedF, i)) {
+            continue;
+        }
+        normalizedF.insert(i);
+    }
+    normCopy = normalizedF;
+    for(const auto &i : normCopy) {
+        normalizedF.erase(i);
+        normalizedF.insert(getReminder(normalizedF, i));
+    }
+    return normalizedF;
 }
-*/
+
 
 #endif //ALGOS_H
