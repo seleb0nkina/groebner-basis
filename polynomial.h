@@ -17,6 +17,8 @@ public:
 
     Polynomial(const std::vector<Monomial<T>> &oth);
 
+    Polynomial& operator=(const Polynomial &oth);
+
     Polynomial operator+(const Polynomial &other) const;
 
     Polynomial operator-(const Polynomial &other) const;
@@ -55,7 +57,7 @@ public:
         return out;
     }
 
-    Monomial<T> LargestTerm() const {
+    Monomial<T> LeadingTerm() const {
         if (poly_.empty()) {
             throw;
         }
@@ -66,16 +68,19 @@ public:
         for (size_t i = 0; i < poly_.size(); ++i) {
             if (poly_[i].getPowers() == other.getPowers()) {
                 poly_[i].addCoefficient(other.getCoefficient());
+                sort(poly_.begin(), poly_.end(), Y());
                 return;
             }
         }
         for (size_t i = 0; i < poly_.size(); ++i) {
             if (Y()(other, poly_[i])) {
                 poly_.insert(poly_.begin() + i, other);
+                sort(poly_.begin(), poly_.end(), Y());
                 return;
             }
         }
         poly_.push_back(other);
+        sort(poly_.begin(), poly_.end(), Y());
     }
 
 private:
@@ -85,6 +90,12 @@ private:
 template<typename T, typename Y>
 Polynomial<T, Y>::Polynomial(const Polynomial &other) {
     poly_ = other.poly_;
+}
+
+template<typename T, typename Y>
+Polynomial<T, Y>& Polynomial<T,Y>::operator=(const Polynomial &oth) {
+    this->poly_ = oth.poly_;
+    return *this;
 }
 
 template<typename T, typename Y>
@@ -117,8 +128,10 @@ Polynomial<T, Y> Polynomial<T, Y>::operator-(const Polynomial &other) const {
 template<typename T, typename Y>
 Polynomial<T, Y> &Polynomial<T, Y>::operator+=(const Polynomial &other) {
     std::vector<Monomial<T>> monomials;
-    std::merge(poly_.begin(), poly_.end(), other.begin(), other.end(), std::back_inserter(monomials.begin()),
+    sort(poly_.begin(), poly_.end(), Y());
+    std::merge(poly_.begin(), poly_.end(), other.poly_.begin(), other.poly_.end(), std::back_inserter(monomials),
                Y());
+    sort(monomials.begin(), monomials.end(), Y());
     std::vector<Monomial<T>> tmp;
     for (const auto &i: monomials) {
         if (tmp.empty()) {
@@ -130,20 +143,26 @@ Polynomial<T, Y> &Polynomial<T, Y>::operator+=(const Polynomial &other) {
                 tmp.push_back(i);
             }
         }
+        while (tmp.size() && tmp.back().getCoefficient() == 0) {
+            tmp.pop_back();
+        }
     }
     poly_ = tmp;
+    sort(poly_.begin(), poly_.end(), Y());
     return *this;
 }
 
 template<typename T, typename Y>
 Polynomial<T, Y> &Polynomial<T, Y>::operator-=(const Polynomial &other) {
     Polynomial minus_other = other;
+    sort(poly_.begin(), poly_.end(), Y());
     for (auto &monomial: minus_other.poly_) {
-        monomial *= -1;
+        monomial.addCoefficient(monomial.getCoefficient() * -2);
     }
     std::vector<Monomial<T>> monomials;
-    std::merge(poly_.begin(), poly_.end(), minus_other.beginother(), minus_other.end(),
-               std::back_inserter(monomials.begin()), Y());
+    std::merge(poly_.begin(), poly_.end(), minus_other.poly_.begin(), minus_other.poly_.end(),
+               std::back_inserter(monomials), Y());
+    sort(monomials.begin(), monomials.end(), Y());
     std::vector<Monomial<T>> tmp;
     for (const auto &i: monomials) {
         if (tmp.empty()) {
@@ -155,8 +174,12 @@ Polynomial<T, Y> &Polynomial<T, Y>::operator-=(const Polynomial &other) {
                 tmp.push_back(i);
             }
         }
+        while (tmp.size() && tmp.back().getCoefficient() == 0) {
+            tmp.pop_back();
+        }
     }
     poly_ = tmp;
+    sort(poly_.begin(), poly_.end(), Y());
     return *this;
 }
 
@@ -197,8 +220,12 @@ Polynomial<T, Y> &Polynomial<T, Y>::operator*=(const Polynomial &other) {
                 tmp.push_back(i);
             }
         }
+        while (tmp.size() && tmp.back().getCoefficient() == 0) {
+            tmp.pop_back();
+        }
     }
-    *this = tmp;
+    this->poly_ = tmp;
+    sort(poly_.begin(), poly_.end(), Y());
     return *this;
 }
 

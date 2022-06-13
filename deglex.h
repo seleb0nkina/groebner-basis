@@ -8,13 +8,25 @@
 template<typename T>
 class DegLex {
 public:
-    bool operator()(const Monomial<T>& a, const Monomial<T>& b) const {
+    DegLex() {}
+
+    bool operator()(const Monomial<T> &a, const Monomial<T> &b) const {
         size_t our = a.powerSum();
         size_t oth = b.powerSum();
         if (our == oth) {
             auto myPowers = a.getPowers();
             auto othPowers = b.getPowers();
-            return (myPowers < othPowers || a.getCoefficient() < b.getCoefficient());
+            if (myPowers == othPowers) {
+                return a.getCoefficient() < b.getCoefficient();
+            }
+            for (int z = 0;; ++z) {
+                if (myPowers[z] != othPowers[z]) {
+                    if (myPowers[z] < othPowers[z]) {
+                        return 1;
+                    }
+                    return 0;
+                }
+            }
         }
         return our < oth;
     }

@@ -7,6 +7,8 @@
 template<typename T>
 class RevLex {
 public:
+    RevLex() {}
+
     bool operator()(const Monomial<T> &a, const Monomial<T> &b) const {
         auto our = a.getPowers();
         auto oth = b.getPowers();

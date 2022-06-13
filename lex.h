@@ -6,10 +6,22 @@
 template<typename T>
 class Lex {
 public:
+    Lex() {}
+
     bool operator()(const Monomial<T> &a, const Monomial<T> &b) const {
         auto our = a.getPowers();
         auto oth = b.getPowers();
-        return (our < oth || our == oth && a.getCoefficient() < b.getCoefficient());
+        if (our == oth) {
+            return a.getCoefficient() < b.getCoefficient();
+        }
+        for (int z = 0;; ++z) {
+            if (our[z] != oth[z]) {
+                if (our[z] < oth[z]) {
+                    return 1;
+                }
+                return 0;
+            }
+        }
     }
 };
 

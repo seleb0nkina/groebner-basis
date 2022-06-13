@@ -27,12 +27,20 @@ public:
         coefficient_ *= other.coefficient_;
         for (const auto &j: other.powers_) {
             powers_[j.first] += j.second;
+            if (powers_[j.first] == 0) {
+                powers_.erase(j.first);
+            }
         }
+        assert(isStateCorrect());
         return *this;
     }
 
     bool operator==(const Monomial &other) const {
-        return coefficient_ == other.coefficient_ && powers_ == other.powers_;
+        return powers_ == other.powers_;
+    }
+
+    bool fullEqual(const Monomial &other) const {
+        return other == (*this) && other.coefficient_ == this->coefficient_;
     }
 
     bool isDivisibleBy(const Monomial &other) const {
@@ -47,15 +55,13 @@ public:
 
     Monomial &operator/=(const Monomial &other) {
         if (!isDivisibleBy(other)) {
-            //
+            throw std::runtime_error("Incorrect division");
         }
         coefficient_ /= other.coefficient_;
         for (const auto &j: other.powers_) {
-            auto power = powers_.find(j.first);
-
-            power->second -= j.second;
-            if (power->second == 0) {
-                powers_.erase(power);
+            powers_[j.first] -= j.second;
+            if (powers_[j.first] == 0) {
+                powers_.erase(j.first);
             }
         }
         assert(isStateCorrect());
@@ -71,33 +77,33 @@ public:
 
     Monomial operator+(const Monomial &other) const {
         if (this->powers_ != other.powers_) {
-            throw std::runtime_error("skladyvaem nepravilnye monomyy");
+            throw std::runtime_error("Incorrect addition");
         }
-        Monomial *temp = *this;
-        temp->coefficient_ += other.coefficient_;
+        Monomial temp = *this;
+        temp.coefficient_ += other.coefficient_;
         return temp;
     }
 
     Monomial operator-(const Monomial &other) const {
         if (this->powers_ != other.powers_) {
-            throw std::runtime_error("vichytaem nepravilnye monomyy");
+            throw std::runtime_error("Incorrect substraction");
         }
-        Monomial *temp = *this;
-        temp->coefficient_ -= other.coefficient_;
+        Monomial temp = *this;
+        temp.coefficient_ -= other.coefficient_;
         return temp;
     }
 
-    Monomial& operator+=(const Monomial &other) {
+    Monomial &operator+=(const Monomial &other) {
         if (this->powers_ != other.powers_) {
-            throw std::runtime_error("skladyvaem nepravilnye monomyy");
+            throw std::runtime_error("Incorrect addition");
         }
         this->coefficient_ += other.coefficient_;
         return *this;
     }
 
-    Monomial& operator-=(const Monomial &other) {
-        if(this->powers_!=other.powers_ ) {
-            throw std::runtime_error("vichytaem nepravilno");
+    Monomial &operator-=(const Monomial &other) {
+        if (this->powers_ != other.powers_) {
+            throw std::runtime_error("Incorrect substraction");
         }
         this->coefficient_ -= other.coefficient_;
         return *this;
@@ -119,7 +125,7 @@ public:
         return coefficient_;
     }
 
-    void addCoefficient(const T& other) {
+    void addCoefficient(const T &other) {
         coefficient_ += other;
     }
 
@@ -129,7 +135,7 @@ public:
 
     DegreeType powerSum() const {
         DegreeType sum = 0;
-        for (auto& j : powers_) {
+        for (auto &j: powers_) {
             sum += j.second;
         }
         return sum;
@@ -146,12 +152,14 @@ public:
 
     Monomial LCM(const Monomial &other) {
         Monomial res;
+        res.coefficient_ = 1;
         for (auto i: powers_) {
             res.powers_[i.first] = std::max(res.powers_[i.first], i.second);
         }
-        for (auto i : other) {
+        for (auto i: other.powers_) {
             res.powers_[i.first] = std::max(res.powers_[i.first], i.second);
         }
+        assert(res.isStateCorrect());
         return res;
     }
 
@@ -164,7 +172,7 @@ public:
     }
 
 protected:
-    T coefficient_ = T(0);
+    T coefficient_ = T(1);
     PowersType powers_;
 };
 
